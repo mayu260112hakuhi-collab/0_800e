@@ -1,0 +1,21 @@
+※組込("head.8g");
+※組込("header.8g");
+※組込("main_contents.8g");
+※組込("footer.8g");
+
+※コメントは※から始まる。
+
+※ここから本文
+
+もし(ここがランチャーなら){
+    ランチャーのディレクトリのindex.8gを組み込む；
+}
+
+<script>
+    // ここにJavaScriptコードを記述できます
+    // アイコンをクリックした時
+        function 起動_配信コア() {
+            // Rust側の ipc_handler にメッセージを送る
+            window.ipc.postMessage("launch_stream");
+        }
+</script>

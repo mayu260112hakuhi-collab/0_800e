@@ -1,0 +1,230 @@
+@charset "UTF-8";
+
+// --- 1. 変数定義 ---
+$bg-deep: #2c003e;
+$bg-main: #3e0647;
+$panel-dark: #1a1a1a;
+$btn-idle: #2a2a2a;
+$primary-blue: #88ccff;
+$accent-gold: #b9930a;
+$danger-red: #b91c1c;
+$warning-orange: #f39c12;
+$text-light: #f0f0f0;
+$text-dark: #444;
+$transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+// --- 2. リセット & ベース ---
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background-color: $bg-deep;
+    font-family: "Inter", system-ui, sans-serif;
+    color: $text-light;
+    -webkit-font-smoothing: antialiased;
+}
+
+body { display: flex; justify-content: flex-start; align-items: flex-start; }
+
+// --- 3. メインランチャー構造 ---
+.launcher-container {
+    display: flex;
+    position: relative;
+    width: 640px; height: 320px;
+    min-width: 640px; min-height: 320px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: $bg-main;
+
+    .side-nav {
+        width: 48px; height: 100%;
+        background: rgba(9, 75, 142, 0.38);
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 20px; flex-shrink: 0;
+        .nav-icon { margin-top: 10px; img { width: 24px; height: auto; } }
+    }
+
+    .main-content {
+        width: 330px; height: 100%;
+        background-image: url('../src/assets/main2.png');
+        background-size: cover; background-position: center;
+        padding: 20px;
+    }
+
+    .right-menu {
+        width: 32px; height: 100%;
+        display: flex; flex-direction: column; gap: 10px;
+        padding: 10px; padding-top: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        #exit-button { color: $primary-blue; cursor: pointer; display: flex; justify-content: center; }
+    }
+}
+
+// --- 4. Stream コンポーネント (tomoe-article) ---
+.tomoe-article {
+    width: 257px; 
+    height: 100%;
+    padding: 10px;
+    background-color: $bg-main;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stream-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 12px;
+
+    #preview-window {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+        border: 1px solid #333;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .scanline {
+            width: 100%; height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            position: absolute; top: 0;
+            animation: scan 4s linear infinite;
+        }
+    }
+
+    .control-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        width: 100%;
+
+        .stream-btn {
+            width: 100%;
+            height: 48px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: $transition;
+            background: $btn-idle;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &:hover { filter: brightness(1.2); }
+            &.settings:hover { color: $primary-blue; }
+
+            // --- アクティブ状態の定義 ---
+            &.active {
+                // 録画(record)・配信(start)ボタン：赤く光って脈動する
+                &.record, &.start {
+                    background-color: $danger-red !important;
+                    box-shadow: 0 0 15px rgba($danger-red, 0.6);
+                    animation: pulse 2s infinite ease-in-out !important;
+                }
+
+                // マイク(mute)ボタン：オレンジ固定
+                &.mute {
+                    background-color: $warning-orange !important;
+                    box-shadow: 0 0 10px rgba($warning-orange, 0.5);
+                    animation: none !important;
+                }
+            }
+        }
+
+        .audio-mixer {
+            grid-column: span 4;
+            background: $panel-dark;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 4px;
+
+            p { margin-bottom: 6px; font-size: 0.8rem; color: #888; letter-spacing: 1px; }
+            input[type="range"] {
+                width: 100%;
+                cursor: pointer;
+                accent-color: $accent-gold;
+            }
+        }
+    }
+}
+
+// --- 5. ソースリスト ---
+.source-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; // スクロールを正しく機能させるため
+
+    .souce-list-box {
+        background: $panel-dark;
+        padding: 10px;
+        border-radius: 8px;
+        flex: 1;
+        overflow-y: auto;
+
+        ul { list-style: none; }
+        li {
+            padding: 10px 8px;
+            color: #ccc;
+            border-bottom: 1px solid #333;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            &:last-child { border-bottom: none; }
+            &:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        }
+    }
+}
+
+// --- 6. アニメーション & ステータス ---
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+@keyframes pulse { 
+    0%, 100% { transform: scale(1); opacity: 1; } 
+    50% { transform: scale(0.96); opacity: 0.8; } 
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.status-overlay {
+    .signal-text {
+        color: $text-dark;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 4px;
+        animation: blink 1.5s infinite;
+    }
+    span { display: block; text-align: center; }
+}
+
+#capture-render {
+    z-index: 10; /* 映像を上に */
+}
+#no-signal-layer {
+    z-index: 5;  /* 重なりを映像より下に */
+}
+/* preview-container 自体に高さと幅があるか確認 */
+.preview-container {
+    position: relative;
+    width: 100%;
+    height: 400px; /* あるいは適当な高さ */
+    background: #000;
+    overflow: hidden;
+}
+
+/* 映像タグを確実に最前面へ */
+#capture-render {
+    display: none;
+    z-index: 10;
+}
+
+/* 走査線エフェクトを映像の上に乗せるなら */
+.scanline {
+    position: absolute;
+    top: 0;
+    z-index: 20; 
+    pointer-events: none; /* 下のクリックを邪魔しない */
+}

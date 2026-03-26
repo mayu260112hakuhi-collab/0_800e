@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <div id="八百万-head-hook"></div>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="module">
+    import { invoke } from "@tauri-apps/api/core";
+    // Tauri v2では process ではなくコア機能から終了を呼ぶ場合が多いです
+    // 必要に応じて適宜調整してください
+
+    async function 魂の起動() {
+        try {
+            const content = await invoke("execute_8g", { code: 'index.8g読込' });
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/html');
+
+            document.head.innerHTML += doc.head.innerHTML;
+            document.getElementById('root').innerHTML = doc.body.innerHTML;
+
+            // --- ここでイベントを登録する ---
+            const setupEvents = () => {
+                const imonBtn = document.getElementById('btn-imon');
+                const streamBtn = document.getElementById('btn-stream');
+                const editorBtn = document.getElementById('btn-editor');
+                const exitBtn = document.getElementById('exit-button');
+
+                if (imonBtn) imonBtn.addEventListener('click', () => { invoke('launch_imon'); });
+                if (streamBtn) streamBtn.addEventListener('click', () => { invoke('launch_stream'); });
+                if (editorBtn) editorBtn.addEventListener('click', () => { invoke('launch_editor'); });
+                if (exitBtn) exitBtn.addEventListener('click', () => { 
+                    // アプリ終了の呼び出し（環境に合わせて調整）
+                    console.log("終了ボタンが押されました");
+                });
+            };
+
+            setupEvents(); 
+            // ------------------------------
+
+            // Scriptの再点火（既存の処理）
+            Array.from(document.getElementById('root').querySelectorAll("script")).forEach(oldScript => {
+                const newScript = document.createElement("script");
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+
+        } catch (error) {
+            console.error("八百万エンジンの起動に失敗:", error);
+        }
+    }
+    window.addEventListener("DOMContentLoaded", 魂の起動);
+</script>
+</body>
+</html>

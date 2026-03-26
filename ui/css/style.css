@@ -1,0 +1,12 @@
+﻿body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+#八百万-コア {
+    border: 2px solid #4a4a4a;
+    padding: 20px;
+    border-radius: 10px;
+}
